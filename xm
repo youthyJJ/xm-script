@@ -9,7 +9,8 @@ COMMAND_MANUAL="命令列表
   \033[36mq\033[0m \033[32mkeyword\033[0m \t\t查询包名包含关键字的应用程序;
   \033[36mp\033[0m \033[32mkeyword\033[0m \t\t查询包名包含关键字的应用程序的安装位置;
   \033[36msa\033[0m \033[32mkeyword\033[0m \t\t启动包名包含关键字的应用程序;
-  \033[36mkey\033[0m \033[32mkeyname\033[0m \t\t\t模拟按键键盘[ home / back / menu / mute / v+ / v- ];"
+  \033[36mkey\033[0m \033[32mkeyname\033[0m \t\t模拟按键键盘[ home / back / menu / mute / v+ / v- ];
+  \033[36mdev\033[0m \t\t\t打印设备基本信息;"
 
 cmd=$1
 parm1=$2
@@ -61,9 +62,11 @@ function pickCommand() {
   elif [ "$cmd" == "key" ]; then
     return 9
 
+  elif [ "$cmd" == "dev" ]; then
+    return 10
+
   else
-    echo "[ Command [ $cmd ] not matched ]"
-    echo -e "$COMMAND_MANUAL"
+    echo -e "\033[31m命令未找到: $cmd\033[0m"
     return 255
   fi
 }
@@ -187,5 +190,15 @@ elif [ $cmdCode -eq 9 ]; then
   else
     echo -e "> \033[31m请输入按键名\033[0m \033[32m[ home / back / menu / mute / v+ / v- ]\033[0m "
   fi
+
+# dev 打印设备基本信息
+elif [ $cmdCode -eq 10 ]; then
+  size=$(adb shell wm size | tail -n 1 |awk -F": " '{print $2}')
+  density=$(adb shell wm density |tail -n 1 |awk -F": " '{print $2}')
+  version=$(adb shell getprop ro.build.version.release)
+  api=$(adb shell getprop ro.build.version.sdk)
+  echo "分辨率: $size" ;
+  echo "像素密度: $density" ;
+  echo "Android版本: $version(api:$api)"
 
 fi
