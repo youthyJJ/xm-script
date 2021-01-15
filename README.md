@@ -35,3 +35,4 @@
 - __xm sa keyword__ : 启动包名包含关键字的应用程序
 - __xm key keyname__ : 模拟按键键盘( home / back / menu / mute / v+ / v- ), 按键过多, 如果有需要可以自行扩展, 可参考[官网](https://developer.android.com/reference/android/view/KeyEvent?hl=zh-cn)  
 - __xm dev__ : 打印设备基本信息;
+- __xm b__ : 模拟发送广播;
