@@ -8,7 +8,8 @@ COMMAND_MANUAL="命令列表
   \033[36mrk/rkill\033[0m \033[32mkeyword\033[0m \t[Root]结束包名包含关键字的应用进程;
   \033[36mq\033[0m \033[32mkeyword\033[0m \t\t查询包名包含关键字的应用程序;
   \033[36mp\033[0m \033[32mkeyword\033[0m \t\t查询包名包含关键字的应用程序的安装位置;
-  \033[36msa\033[0m \033[32mkeyword\033[0m \t\t启动包名包含关键字的应用程序;"
+  \033[36msa\033[0m \033[32mkeyword\033[0m \t\t启动包名包含关键字的应用程序;
+  \033[36mkey\033[0m \033[32mkeyname\033[0m \t\t\t模拟按键键盘[ home / back / menu / mute / v+ / v- ];"
 
 cmd=$1
 parm1=$2
@@ -57,6 +58,9 @@ function pickCommand() {
   elif [ "$cmd" == "sa" ]; then
     return 8
 
+  elif [ "$cmd" == "key" ]; then
+    return 9
+
   else
     echo "[ Command [ $cmd ] not matched ]"
     echo -e "$COMMAND_MANUAL"
@@ -102,7 +106,7 @@ elif [ $cmdCode -eq 3 ]; then
 # top 监听当前设备的顶部Activity
 elif [ $cmdCode -eq 4 ]; then
   while true; do
-    adb shell dumpsys activity activities | grep mResumedActivity | awk '{print $4}' |grep -E "/"
+    adb shell dumpsys activity activities | grep mResumedActivity | awk '{print $4}' | grep -E "/"
     sleep 1
   done
 
@@ -128,31 +132,60 @@ elif [ $cmdCode -eq 7 ]; then
 
 # sa 启动包名包含关键字的应用程序
 elif [ $cmdCode -eq 8 ]; then
-    if [ ! "$parm1" ]; then
-        echo -e "> \033[31m请输入关键字\033[0m"
+  if [ ! "$parm1" ]; then
+    echo -e "> \033[31m请输入关键字\033[0m"
+  else
+    array=($(adb shell pm list packages | grep "$parm1" | sed 's/^package://'))
+    if [ ${#array[@]} -eq 0 ]; then
+      echo -e "> \033[31m没有有效的包!\033[0m"
+    elif [ ${#array[@]} -eq 1 ]; then
+      echo -e "> \033[36m启动\033[0m\t${array[0]}"
+      adb shell am start -n $(adb shell dumpsys package "${array[input]}" | grep -A 1 "android.intent.action.MAIN:" | tail -n 1 | awk '{print $2}')
     else
-        array=($(adb shell pm list packages |grep "$parm1" |sed 's/^package://'))
-        if [ ${#array[@]} -eq 0 ]; then
-            echo -e "> \033[31m没有有效的包!\033[0m"
-        elif [ ${#array[@]} -eq 1 ]; then
-            echo -e "> \033[36m启动\033[0m\t${array[0]}"
-            adb shell am start -n $(adb shell dumpsys package "${array[input]}" |grep -A 1 "android.intent.action.MAIN:" |tail -n 1 |awk '{print $2}')
-        else
-            for(( i=0;i<${#array[@]};i++)) do
-            echo -e " \033[32m$i\033[0m\t${array[i]}";
-            done;
-            echo -e "> 请选择需要启动的应用\033[36m[默认:0]\033[0m:";
-            read input
-            if [ ! "$input" ]; then
-                echo -e "> \033[36m启动\033[0m\t${array[0]}"
-                adb shell am start -n $(adb shell dumpsys package "${array[input]}" |grep -A 1 "android.intent.action.MAIN:" |tail -n 1 |awk '{print $2}')
-            elif [ "$input" -lt ${#array[@]} ]; then
-                echo -e "> \033[36m启动\033[0m\t${array[input]}"
-                adb shell am start -n $(adb shell dumpsys package "${array[input]}" |grep -A 1 "android.intent.action.MAIN:" |tail -n 1 |awk '{print $2}')
-            else
-                echo -e "> \033[31m超过有效数值!\033[0m"
-            fi
-        fi
+      for ((i = 0; i < ${#array[@]}; i++)); do
+        echo -e " \033[32m$i\033[0m\t${array[i]}"
+      done
+      echo -e "> 请选择需要启动的应用\033[36m[默认:0]\033[0m:"
+      read input
+      if [ ! "$input" ]; then
+        echo -e "> \033[36m启动\033[0m\t${array[0]}"
+        adb shell am start -n $(adb shell dumpsys package "${array[input]}" | grep -A 1 "android.intent.action.MAIN:" | tail -n 1 | awk '{print $2}')
+      elif [ "$input" -lt ${#array[@]} ]; then
+        echo -e "> \033[36m启动\033[0m\t${array[input]}"
+        adb shell am start -n $(adb shell dumpsys package "${array[input]}" | grep -A 1 "android.intent.action.MAIN:" | tail -n 1 | awk '{print $2}')
+      else
+        echo -e "> \033[31m超过有效数值!\033[0m"
+      fi
     fi
+  fi
+
+# key keyname 模拟按键键盘[ home / back / menu / mute / v+ / v-]
+# 按键过多, 如果有需要可以自行扩展, 参考: https://developer.android.com/reference/android/view/KeyEvent?hl=zh-cn
+elif [ $cmdCode -eq 9 ]; then
+  if [ ! "$parm1" ]; then
+    echo -e "> \033[31m请输入按键名\033[0m \033[32m[ home / back / menu / mute / v+ / v- ]\033[0m "
+  elif [ "$parm1" == "home" ]; then
+    echo "Home键"
+    adb shell input keyevent 3
+  elif [ "$parm1" == "back" ]; then
+    echo "返回键"
+    adb shell input keyevent 4
+  elif [ "$parm1" == "menu" ]; then
+    echo "菜单键"
+    adb shell input keyevent 82
+  elif [ "$parm1" == "mute" ]; then
+    echo "静音键"
+    adb shell input keyevent 164
+  elif [ "$parm1" == "v+" ]; then
+    echo "音量+"
+    adb shell input keyevent 24
+    adb shell input keyevent 24
+  elif [ "$parm1" == "v-" ]; then
+    echo "音量-"
+    adb shell input keyevent 25
+    adb shell input keyevent 25
+  else
+    echo -e "> \033[31m请输入按键名\033[0m \033[32m[ home / back / menu / mute / v+ / v- ]\033[0m "
+  fi
 
 fi
