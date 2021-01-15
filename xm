@@ -102,7 +102,7 @@ elif [ $cmdCode -eq 3 ]; then
 # top 监听当前设备的顶部Activity
 elif [ $cmdCode -eq 4 ]; then
   while true; do
-    adb shell dumpsys activity activities | grep mResumedActivity | awk '{print $4}'
+    adb shell dumpsys activity activities | grep mResumedActivity | awk '{print $4}' |grep -E "/"
     sleep 1
   done
 
