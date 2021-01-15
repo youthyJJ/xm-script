@@ -209,7 +209,7 @@ elif [ $cmdCode -eq 10 ]; then
 elif [ $cmdCode -eq 11 ]; then
   echo -n "请输入Action:"
   read action
-  finalCmd="adb shell am broadcast -a $action"
+  finalCmd="adb shell am broadcast -a '$action'"
   while true; do
     echo "  1: 添加extra(string)"
     echo "  2: 添加extra(int)"
@@ -228,33 +228,33 @@ elif [ $cmdCode -eq 11 ]; then
       while true; do echo -n "extra(string) key: " ; read key_string ; if [ ! "$key_string" ]; then echo "无效的值" ; continue; fi ; break; done
       while true; do echo -n "extra(string) value: "; read value_string; if [ ! "$value_string" ]; then echo "无效的值"; continue; fi; break; done
       echo "已添加: [ $key_string = $value_string ] "
-      finalCmd="$finalCmd --es $key_string $value_string"
+      finalCmd="$finalCmd --es '$key_string' '$value_string'"
       sleep 0.5
 
     elif [ "$input" == "2" ]; then
       while true; do echo -n "extra(int) key: "; read key_int; if [ ! "$key_int" ]; then echo "无效的值"; continue; fi; break; done
       while true; do echo -n "extra(int) value: "; read value_int; if [ ! "$value_int" ]; then echo "无效的值"; continue; fi; break; done
       echo "已添加: [ $key_int = $value_int ] "
-      finalCmd="$finalCmd --ei $key_int $value_int"
+      finalCmd="$finalCmd --ei '$key_int' '$value_int'"
       sleep 0.5
 
     elif [ "$input" == "3" ]; then
       while true; do echo -n "extra(boolean) key: "; read key_boolean; if [ ! "$key_boolean" ]; then echo "无效的值"; continue; fi; break; done
       while true; do echo -n "extra(boolean) value: "; read value_boolean; if [ ! "$value_boolean" ]; then echo "无效的值"; continue; fi; break; done
       echo "已添加: [ $key_boolean = $value_boolean ] "
-      finalCmd="$finalCmd --ez $key_boolean $value_boolean"
+      finalCmd="$finalCmd --ez '$key_boolean' '$value_boolean'"
       sleep 0.5
 
     elif [ "$input" == "4" ]; then
       while true; do echo -n "flag: "; read flag; if [ ! "$flag" ]; then echo "无效的值"; continue; fi; break; done
       echo "已添加: flag: $flag "
-      finalCmd="$finalCmd -f $flag"
+      finalCmd="$finalCmd -f '$flag'"
       sleep 0.5
 
     elif [ "$input" == "5" ]; then
       while true; do echo -n "component: "; read component; if [ ! "$component" ]; then echo "无效的值"; continue; fi; break; done
       echo "已添加: component: $component "
-      finalCmd="$finalCmd -n $component"
+      finalCmd="$finalCmd -n '$component'"
       sleep 0.5
 
     elif [ "$input" == "6" ]; then
