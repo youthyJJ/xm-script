@@ -7,7 +7,7 @@
 3. ``` sudo mkdir -p /usr/local/script ```
 4. ``` sudo mv ~/.script_clone/xm /usr/local/script/xm ```
 5. ``` sudo chmod 555 /usr/local/script/xm ```
-6. ``` sudo echo 'PATH=$PATH:/usr/local/script/xm'>>/etc/profile ```
+6. ``` sudo sh -c "echo 'export PATH=$PATH:/usr/local/script/xm' >> /etc/profile" ```
 7. ``` source /etc/profile ```
 8. ``` rm -r ~/.script_clone ```
 
