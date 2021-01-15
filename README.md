@@ -17,3 +17,6 @@
 - __xm ua keyword__ : 卸载包名包含关键字的应用
 - __xm k/kill keyword__ : 结束包名包含关键字的应用进程
 - __xm rk/rkill keyword__ : (Root)结束包名包含关键字的应用进程
+- __xm q keyword__ : 查询包名包含关键字的应用程序
+- __xm p keyword__ : 查询包名包含关键字的应用程序的安装位置
+- __xm sa keyword__ : 启动包名包含关键字的应用程序
