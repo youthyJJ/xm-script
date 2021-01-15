@@ -2,14 +2,27 @@
 提供一些快捷的adb指令, 适用于 MacOS / Linux 环境.
 
 ### 配置说明:
-1. ``` mkdir -p ~/.script_clone ```
-2. ``` git clone git@github.com:youthyJJ/xm-script.git ~/.script_clone ```
-3. ``` sudo mkdir -p /usr/local/script ```
-4. ``` sudo mv ~/.script_clone/xm /usr/local/script/xm ```
-5. ``` sudo chmod 555 /usr/local/script/xm ```
-6. ``` sudo sh -c "echo 'export PATH=$PATH:/usr/local/script/xm' >> /etc/profile" ```
-7. ``` source /etc/profile ```
-8. ``` rm -r ~/.script_clone ```
+- 顺序导入:
+    1. ``` rm -r ~/.script_clone ```
+    2. ``` mkdir -p ~/.script_clone ```
+    3. HTTPS:  
+       ``` git clone https://github.com/youthyJJ/xm-script.git ~/.script_clone ```  
+       SSH:  
+       ``` git clone git@github.com:youthyJJ/xm-script.git ~/.script_clone ```
+    4. ``` sudo mkdir -p /usr/local/script ```
+    5. ``` sudo rm /usr/local/script/xm ```
+    6. ``` sudo rm -r /usr/local/script/xm ```
+    7. ``` sudo mv ~/.script_clone/xm /usr/local/script/xm ```
+    8. ``` sudo chmod 555 /usr/local/script/xm ```
+    9. ``` sudo sh -c "echo 'export PATH=$PATH:/usr/local/script' >> /etc/profile" ```
+    10. ``` source /etc/profile ```
+
+- 两行导入:  
+    1. HTTPS:    
+        ``` sudo sh -c "while true; do rm -r ~/.script_clone ; mkdir -p ~/.script_clone ; git clone https://github.com/youthyJJ/xm-script.git ~/.script_clone ; mkdir -p /usr/local/script ; rm -r /usr/local/script/xm ; rm /usr/local/script/xm ; mv ~/.script_clone/xm /usr/local/script/xm ; chmod 555 /usr/local/script/xm ; echo 'export PATH=$PATH:/usr/local/script' >> /etc/profile ; break ; done " ```  
+        SSH:  
+        ``` sudo sh -c "while true; do rm -r ~/.script_clone ; mkdir -p ~/.script_clone ; git clone git@github.com:youthyJJ/xm-script.git ~/.script_clone ; mkdir -p /usr/local/script ; rm -r /usr/local/script/xm ; rm /usr/local/script/xm ; mv ~/.script_clone/xm /usr/local/script/xm ; chmod 555 /usr/local/script/xm ; echo 'export PATH=$PATH:/usr/local/script' >> /etc/profile ; break ; done " ```
+    2. ``` source /etc/profile ```
 
 ### 脚本功能:
 - __xm top__ : 监听当前设备的顶部Activity
