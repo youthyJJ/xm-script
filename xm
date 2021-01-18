@@ -10,6 +10,7 @@ COMMAND_MANUAL="命令列表
   \033[36mp\033[0m \033[32mkeyword\033[0m \t\t查询包名包含关键字的应用程序的安装位置;
   \033[36msa\033[0m \033[32mkeyword\033[0m \t\t启动包名包含关键字的应用程序;
   \033[36mkey\033[0m \033[32mkeyname\033[0m \t\t模拟按键键盘[ home / back / menu / mute / v+ / v- ];
+  \033[36mtap\033[0m \033[32mx\033[0m \033[32my\033[0m \t\t模拟点击屏幕;
   \033[36mdev\033[0m \t\t\t打印设备基本信息;
   \033[36mb\033[0m \t\t\t模拟发送广播;"
 
@@ -69,6 +70,9 @@ function pickCommand() {
   elif [ "$cmd" == "b" ]; then
     return 11
 
+  elif [ "$cmd" == "tap" ]; then
+    return 12
+
   else
     echo -e "\033[31m命令未找到: $cmd\033[0m"
     return 255
@@ -84,7 +88,7 @@ if [ $cmdCode -eq 1 ]; then
     echo -e "> \033[31m请输入关键字\033[0m"
   else
     adb shell pm list packages | grep "$parm1" | sed 's/^package://' | while read -r package; do
-      echo -e "uninstalling \033[32m[ $package ]\033[0m"
+      echo -e "卸载应用:\t\033[36m$package\033[0m"
       eval "adb uninstall $package"
     done
   fi
@@ -95,7 +99,7 @@ elif [ $cmdCode -eq 2 ]; then
     echo -e "> \033[31m请输入关键字\033[0m"
   else
     component=$(adb shell dumpsys activity activities | grep -E "Run #.*" | awk '{print $5}' | grep "$parm1" | awk -F"/" '{print $1}')
-    echo -e "killing \033[32m[ $component ]\033[0m"
+    echo -e "结束应用:\t\033[36m$component\033[0m"
     adb shell am force-stop "$component"
   fi
 
@@ -105,7 +109,7 @@ elif [ $cmdCode -eq 3 ]; then
     echo -e "> \033[31m请输入关键字\033[0m"
   else
     adb shell ps -A | grep "$parm1" | awk '{print $2}' | while read -r pid; do
-      echo -e "killing \033[32m[ $pid ]\033[0m"
+      echo -e "结束进程:\t\033[36m$pid\033[0m"
       eval $(adb shell kill "$pid")
     done
   fi
@@ -113,7 +117,10 @@ elif [ $cmdCode -eq 3 ]; then
 # top 监听当前设备的顶部Activity
 elif [ $cmdCode -eq 4 ]; then
   while true; do
-    adb shell dumpsys activity activities | grep mResumedActivity | awk '{print $4}' | grep -E "/"
+    result=$(adb shell dumpsys activity activities | grep mResumedActivity | awk '{print $4}' | grep -E "/")
+    packageName=$(awk -F"/" '{print $1}')
+    activityName=$(awk -F"/" '{print $2}')
+    echo -e "\033[36m$packageName\033[0m / \033[32m$activityName\033[0m"
     sleep 1
   done
 
@@ -146,7 +153,7 @@ elif [ $cmdCode -eq 8 ]; then
     if [ ${#array[@]} -eq 0 ]; then
       echo -e "> \033[31m没有有效的包!\033[0m"
     elif [ ${#array[@]} -eq 1 ]; then
-      echo -e "> \033[36m启动\033[0m\t${array[0]}"
+      echo -e "> 启动\t\033[36m${array[0]}\033[0m"
       adb shell am start -n $(adb shell dumpsys package "${array[input]}" | grep -A 1 "android.intent.action.MAIN:" | tail -n 1 | awk '{print $2}')
     else
       for ((i = 0; i < ${#array[@]}; i++)); do
@@ -155,16 +162,21 @@ elif [ $cmdCode -eq 8 ]; then
       echo -e "> 请选择需要启动的应用\033[36m[默认:0]\033[0m:"
       read input
       if [ ! "$input" ]; then
-        echo -e "> \033[36m启动\033[0m\t${array[0]}"
+        echo -e "启动:\t\033[36m${array[0]}\033[0m"
         adb shell am start -n $(adb shell dumpsys package "${array[input]}" | grep -A 1 "android.intent.action.MAIN:" | tail -n 1 | awk '{print $2}')
       elif [ "$input" -lt ${#array[@]} ]; then
-        echo -e "> \033[36m启动\033[0m\t${array[input]}"
+        echo -e "启动:\t\033[36m${array[input]}\033[0m"
         adb shell am start -n $(adb shell dumpsys package "${array[input]}" | grep -A 1 "android.intent.action.MAIN:" | tail -n 1 | awk '{print $2}')
       else
         echo -e "> \033[31m超过有效数值!\033[0m"
       fi
     fi
   fi
+
+# tap 模拟点击屏幕
+elif [ $cmdCode -eq 12 ]; then
+  echo -e "点击: \033[36m$parm1\033[0m \033[36m$parm2\033[0m"
+  eval $(adb shell input tap "$parm1" "$parm2")
 
 # key keyname 模拟按键键盘[ home / back / menu / mute / v+ / v-]
 # 按键过多, 如果有需要可以自行扩展, 参考: https://developer.android.com/reference/android/view/KeyEvent?hl=zh-cn
