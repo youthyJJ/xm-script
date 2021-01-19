@@ -96,7 +96,7 @@ if [ $cmdCode -eq 1 ]; then
 # k/kill 结束包名包含关键字的应用进程
 elif [ $cmdCode -eq 2 ]; then
   if [ ! "$parm1" ]; then
-    echo -e "> \033[31m请输入关键字\033[0m"
+    echo -e " \033[31m请输入关键字\033[0m"
   else
     component=$(adb shell dumpsys activity activities | grep -E "Run #.*" | awk '{print $5}' | grep "$parm1" | awk -F"/" '{print $1}')
     echo -e "结束应用:\t\033[36m$component\033[0m"
@@ -106,7 +106,7 @@ elif [ $cmdCode -eq 2 ]; then
 # rk/rkill (Root)结束包名包含关键字的应用进程
 elif [ $cmdCode -eq 3 ]; then
   if [ ! "$parm1" ]; then
-    echo -e "> \033[31m请输入关键字\033[0m"
+    echo -e " \033[31m请输入关键字\033[0m"
   else
     adb shell ps -A | grep "$parm1" | awk '{print $2}' | while read -r pid; do
       echo -e "结束进程:\t\033[36m$pid\033[0m"
@@ -118,9 +118,9 @@ elif [ $cmdCode -eq 3 ]; then
 elif [ $cmdCode -eq 4 ]; then
   while true; do
     result=$(adb shell dumpsys activity activities | grep mResumedActivity | awk '{print $4}' | grep -E "/")
-    packageName=$(awk -F"/" '{print $1}')
-    activityName=$(awk -F"/" '{print $2}')
-    echo -e "\033[36m$packageName\033[0m / \033[32m$activityName\033[0m"
+    packageName=$(echo "$result" | awk -F"/" '{print $1}')
+    activityName=$(echo "$result" | awk -F"/" '{print $2}')
+    echo -e "  \033[36m$packageName\033[0m/\033[32m$activityName\033[0m  \033[31m( Ctrl + C 退出 )\033[0m"
     sleep 1
   done
 
@@ -237,34 +237,98 @@ elif [ $cmdCode -eq 11 ]; then
       continue
 
     elif [ "$input" == "1" ]; then
-      while true; do echo -n "extra(string) key: " ; read key_string ; if [ ! "$key_string" ]; then echo -e "\033[31m无效的值\033[0m"; continue; fi ; break; done
-      while true; do echo -n "extra(string) value: "; read value_string; if [ ! "$value_string" ]; then echo -e "\033[31m无效的值\033[0m"; continue; fi; break; done
+      while true; do
+        echo -n "extra(string) key: "
+        read key_string
+        if [ ! "$key_string" ]; then
+          echo -e "\033[31m无效的值\033[0m"
+          continue
+        fi
+        break
+      done
+      while true; do
+        echo -n "extra(string) value: "
+        read value_string
+        if [ ! "$value_string" ]; then
+          echo -e "\033[31m无效的值\033[0m"
+          continue
+        fi
+        break
+      done
       echo -e "\033[32m已添加\033[0m: [ $key_string = $value_string ] "
       finalCmd="$finalCmd --es '$key_string' '$value_string'"
       sleep 0.5
 
     elif [ "$input" == "2" ]; then
-      while true; do echo -n "extra(int) key: "; read key_int; if [ ! "$key_int" ]; then echo -e "\033[31m无效的值\033[0m"; continue; fi; break; done
-      while true; do echo -n "extra(int) value: "; read value_int; if [ ! "$value_int" ]; then echo -e "\033[31m无效的值\033[0m"; continue; fi; break; done
+      while true; do
+        echo -n "extra(int) key: "
+        read key_int
+        if [ ! "$key_int" ]; then
+          echo -e "\033[31m无效的值\033[0m"
+          continue
+        fi
+        break
+      done
+      while true; do
+        echo -n "extra(int) value: "
+        read value_int
+        if [ ! "$value_int" ]; then
+          echo -e "\033[31m无效的值\033[0m"
+          continue
+        fi
+        break
+      done
       echo -e "\033[32m已添加\033[0m: [ $key_int = $value_int ] "
       finalCmd="$finalCmd --ei '$key_int' '$value_int'"
       sleep 0.5
 
     elif [ "$input" == "3" ]; then
-      while true; do echo -n "extra(boolean) key: "; read key_boolean; if [ ! "$key_boolean" ]; then echo -e "\033[31m无效的值\033[0m"; continue; fi; break; done
-      while true; do echo -n "extra(boolean) value: "; read value_boolean; if [ ! "$value_boolean" ]; then echo -e "\033[31m无效的值\033[0m"; continue; fi; break; done
+      while true; do
+        echo -n "extra(boolean) key: "
+        read key_boolean
+        if [ ! "$key_boolean" ]; then
+          echo -e "\033[31m无效的值\033[0m"
+          continue
+        fi
+        break
+      done
+      while true; do
+        echo -n "extra(boolean) value: "
+        read value_boolean
+        if [ ! "$value_boolean" ]; then
+          echo -e "\033[31m无效的值\033[0m"
+          continue
+        fi
+        break
+      done
       echo -e "\033[32m已添加\033[0m: [ $key_boolean = $value_boolean ] "
       finalCmd="$finalCmd --ez '$key_boolean' '$value_boolean'"
       sleep 0.5
 
     elif [ "$input" == "4" ]; then
-      while true; do echo -n "flag: "; read flag; if [ ! "$flag" ]; then echo -e "\033[31m无效的值\033[0m"; continue; fi; break; done
+      while true; do
+        echo -n "flag: "
+        read flag
+        if [ ! "$flag" ]; then
+          echo -e "\033[31m无效的值\033[0m"
+          continue
+        fi
+        break
+      done
       echo -e "\033[32m已添加\033[0m: flag: $flag "
       finalCmd="$finalCmd -f '$flag'"
       sleep 0.5
 
     elif [ "$input" == "5" ]; then
-      while true; do echo -n "component: "; read component; if [ ! "$component" ]; then echo -e "\033[31m无效的值\033[0m"; continue; fi; break; done
+      while true; do
+        echo -n "component: "
+        read component
+        if [ ! "$component" ]; then
+          echo -e "\033[31m无效的值\033[0m"
+          continue
+        fi
+        break
+      done
       echo -e "\033[32m已添加\033[0m: component: $component "
       finalCmd="$finalCmd -n '$component'"
       sleep 0.5
