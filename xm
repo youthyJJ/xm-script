@@ -12,6 +12,7 @@ COMMAND_MANUAL="命令列表
   \033[36mkey\033[0m \033[32mkeyname\033[0m \t\t模拟按键键盘[ home / back / menu / mute / v+ / v- ];
   \033[36mtap\033[0m \033[32mx\033[0m \033[32my\033[0m \t\t模拟点击屏幕;
   \033[36mdev\033[0m \t\t\t打印设备基本信息;
+  \033[36msc/screen\033[0m \t\t修改屏幕尺寸及像素密度;
   \033[36mb\033[0m \t\t\t模拟发送广播;"
 
 cmd=$1
@@ -72,6 +73,10 @@ function pickCommand() {
 
   elif [ "$cmd" == "tap" ]; then
     return 12
+
+  elif [ "$cmd" == "sc" ] || 
+    [ "$cmd" == "screen" ]; then
+    return 13
 
   else
     echo -e "\033[31m命令未找到: $cmd\033[0m"
@@ -346,5 +351,38 @@ elif [ $cmdCode -eq 11 ]; then
 
   eval "$finalCmd"
   echo -e "\033[32m已发送\033[0m: \033[31m$finalCmd\033[0m"
+
+# sc/screen 修改屏幕尺寸及像素密度
+elif [ $cmdCode -eq 13 ]; then
+  if [ "$parm1" ]; then
+    size="$parm1"
+  else
+    while true; do
+       echo -n "屏幕尺寸(size): "
+       read size
+       if [ ! "$size" ]; then
+         echo -e "\033[31m请输入屏幕尺寸,例如:320x240,输入reset重置为默认\033[0m"
+         continue
+       fi
+       break
+    done
+  fi
+
+if [ "$parm2" ]; then
+    density="$parm2"
+  else
+    while true; do
+       echo -n "像素密度(density): "
+       read density
+       if [ ! "$density" ]; then
+         echo -e "\033[31m请输入像素密度,例如:160,输入reset重置为默认\033[0m"
+         continue
+       fi
+       break
+    done
+  fi
+
+  adb shell wm size "$size"
+  adb shell wm density "$density"
 
 fi
