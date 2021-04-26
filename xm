@@ -78,6 +78,10 @@ function pickCommand() {
     [ "$cmd" == "screen" ]; then
     return 13
 
+  elif [ "$cmd" == "c" ] ||
+    [ "$cmd" == "clear" ]; then
+    return 14
+
   else
     echo -e "\033[31m命令未找到: $cmd\033[0m"
     return 255
@@ -384,5 +388,34 @@ if [ "$parm2" ]; then
 
   adb shell wm size "$size"
   adb shell wm density "$density"
+
+# c/clear 清理指定包
+elif [ $cmdCode -eq 14 ]; then
+  if [ ! "$parm1" ]; then
+    echo -e "> \033[31m请输入关键字\033[0m"
+  else
+    array=($(adb shell pm list packages | grep "$parm1" | sed 's/^package://'))
+    if [ ${#array[@]} -eq 0 ]; then
+      echo -e "> \033[31m没有有效的包!\033[0m"
+    elif [ ${#array[@]} -eq 1 ]; then
+      echo -e "> 清理\t\033[36m${array[0]}\033[0m"
+      adb shell pm clear "${array[0]}"
+    else
+      for ((i = 0; i < ${#array[@]}; i++)); do
+        echo -e "  \033[32m$i\033[0m\t${array[i]}"
+      done
+      echo -e "> 请选择需要清理的应用\033[36m[默认:0]\033[0m:"
+      read input
+      if [ ! "$input" ]; then
+        echo -e "清理:\t\033[36m${array[0]}\033[0m"
+        adb shell pm clear "${array[0]}"
+      elif [ "$input" -lt ${#array[@]} ]; then
+        echo -e "清理:\t\033[36m${array[input]}\033[0m"
+        adb shell pm clear "${array[input]}"
+      else
+        echo -e "> \033[31m超过有效数值!\033[0m"
+      fi
+    fi
+  fi
 
 fi
